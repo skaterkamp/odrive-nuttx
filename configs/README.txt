@@ -419,6 +419,10 @@ configs/nutiny-nuc120
   This is the port of NuttX to the NuvoTon NuTiny-SDK-NUC120 board.  This
   board has the NUC120LE3AN chip with a built-in NuLink debugger.
 
+configs/odrive-3-3
+  Support for ODriveRobotics ODrive v3.3 board. For driving BLDC
+  motors.
+
 configs/olimex-efm32g880f128-stk
   This is the port of NuttX to the Olimex EFM32G880F128-STK development
   board.

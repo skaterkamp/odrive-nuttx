@@ -1,0 +1,147 @@
+= ODrive BLDC Controller with NuttX RTOS: Debian Linux based Toolchain
+Stefan Katerkamp <stefan@katerkamp.de>
+02.09.2017
+
+These installation instructions show how to install
+NuttX RTOS on an ODrive V.3.3 brushless DC motor controller board. 
+See http://odriverobotics.com[ODriveRobotics] for details on the board.
+
+Prerequisite is a Debian Stretch (Debian 9) installation.
+
+http://nuttx.org[NuttX] is a great Posix like RTOS. 
+This fork is currently just a proof of concept that the toolchain works
+for the ODrive V3.3 board. It does not yet contain softoware
+for motor drivers.
+
+== On Chip Debugger
+
+This is used for flashing per STLINK V2 USB stick.
+
+----
+sudo aptitude install openocd
+----
+
+Add user permissions for the debugger stick:
+
+----
+sudo usermod -aG plugdev $USER
+sudo update-usbids
+----
+
+== Toolchain
+
+Debian comes with packages for several architectures. We need ARM Cortex-A/R/M,
+as well as some other packages to build NuttX.
+
+----
+sudo aptitude install binutils-arm-none-eabi gcc-arm-none-eabi gdb-arm-none-eabi \
+autoconf libtool gperf flex bison picocom \
+cmake libncurses-dev libusb-1.0-0-dev pkg-config \
+libsgutils2-dev build-essential fakeroot
+----
+
+Add user permissions for USB ACM device to access NuttX console:
+
+----
+sudo usermod -aG dialout $USER
+----
+
+== Workspace
+
+Log out and log in again to inform the shell that the user has been
+added to groups _dialout_ and _plugdev_.  Create a work directory:
+
+ ODRIVE_WORKSPACE=$USER/odrive
+ mkdir $ODRIVE_WORKSPACE
+
+== Original Odrive Firmware
+
+The original firmware is FreeRTOS based. Just try to install it to check
+the board is OK:
+
+ cd $ODRIVE_WORKSPACE
+ git clone https://github.com/madcowswe/ODriveFirmware.git
+
+Activate a branch for V3.3 board:
+
+ cd ODriveFirmware
+ git checkout sensorless-b4-v3.3
+
+Now connect three wires of the STLINK USB stick to ODrive header _J2_, pins SWC, GND, SWD. 
+Connect the USB stick to your Debian system.
+Make and flash:
+
+ make 
+ make flash
+
+Communication needs a special python script.
+Connect the USB cable to your Debian system and to ODrive USB port:
+
+ aptitude install python3-usb
+ python3 tools/test_bulk.py 
+
+
+== NuttX
+
+NuttX needs kconfig-frontends.
+Make sure all Debian packages (see above) are installed.
+Then download and compile:
+
+----
+cd $ODRIVE_WORKSPACE
+git clone http://ymorin.is-a-geek.org/git/kconfig-frontends/
+cd kconfig-frontends
+libtoolize --copy --force
+aclocal -Wall --force
+autoheader
+automake --force-missing --add-missing
+autoconf
+./configure
+make
+sudo make install
+sudo echo "/usr/local/lib" > /etc/ld.so.conf.d/kconfig.conf
+sudo ldconfig
+----
+
+Get NuttX including its apps, configure and cross compile:
+
+----
+cd $ODRIVE_WORKSPACE
+git clone https://github.com/skaterkamp/odrive-nuttx.git nuttx
+git clone https://bitbucket.org/nuttx/apps.git apps
+cd nuttx
+make distclean
+./tools/configure.sh odrive-3-3/usbnsh
+make menuconfig
+make
+----
+
+Now connect three wires of the STLINK USB stick to ODrive header _J2_, pins SWC, GND, SWD. 
+Connect the USB stick to your Debian system.  Then flash:
+
+ openocd -f interface/stlink-v2.cfg -f target/stm32f4x.cfg -c init -c "reset halt" \
+ -c "flash write_image erase nuttx.bin 0x08000000" -c "reset run" -c exit
+
+Connect USB cable to ODrive USB port.  A new ACM device shows up in _/dev_. This means, NuttX
+is up and running. Log in to the ODrive board:
+
+ picocom --baud 115200 /dev/ttyACM0 
+
+Hit ENTER 3 times, the NuttShell welcome message appears and nsh is ready:
+
+----
+Terminal ready
+
+NuttShell (NSH)
+nsh> 
+nsh> uname -a
+NuttX 0.0 0 arm odrive-3-3
+nsh> free
+             total       used       free    largest
+Mem:        192224      11280     180944     124496
+nsh> 
+----
+ 
+Exit Picocom teminal session by typing Ctrl-A and then Ctrl-X.
+
+Next is to add motor drivers et. al..

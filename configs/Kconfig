@@ -491,6 +491,17 @@ config ARCH_BOARD_NUTINY_NUC120
 		Nuvoton NUC120 chip, specifically the NUC120LE3AN.  See http://www.nuvoton.com/
 		for further information.
 
+config ARCH_BOARD_ODRIVE_3_3
+	bool "ODriveRobotics ODrive V3.3"
+	depends on ARCH_CHIP_STM32F405RG
+	select ARCH_HAVE_LEDS
+	select ARCH_HAVE_BUTTONS
+	select ARCH_HAVE_IRQBUTTONS
+	---help---
+		This port uses the Odrive Version 3.3 board and a GNU arm-none-elf
+		toolchain* under Linux.  This board features the STMicro STM32F405RGT6
+		MCU. See http://wwww.odriverobotics.com/ for more info.
+
 config ARCH_BOARD_OLIMEX_EFM32G880F128_STK
 	bool "Olimex EFM32G880F128 STK"
 	depends on ARCH_CHIP_EFM32G880F128
@@ -1586,6 +1597,7 @@ config ARCH_BOARD
 	default "ntosd-dm320"              if ARCH_BOARD_NTOSD_DM320
 	default "nutiny-nuc120"            if ARCH_BOARD_NUTINY_NUC120
 	default "nr5m100-nexys4"           if ARCH_BOARD_NR5M100_NEXYS4
+	default "odrive-3-3"               if ARCH_BOARD_ODRIVE_3_3
 	default "olimex-efm32g880f128-stk" if ARCH_BOARD_OLIMEX_EFM32G880F128_STK
 	default "olimex-lpc1766stk"        if ARCH_BOARD_LPC1766STK
 	default "olimex-lpc2378"           if ARCH_BOARD_OLIMEXLPC2378
@@ -1865,6 +1877,9 @@ source "configs/ntosd-dm320/Kconfig"
 endif
 if ARCH_BOARD_NUTINY_NUC120
 source "configs/nutiny-nuc120/Kconfig"
+endif
+if ARCH_BOARD_ODRIVE_3_3
+source "configs/odrive-3-3/Kconfig"
 endif
 if ARCH_BOARD_OLIMEX_EFM32G880F128_STK
 source "configs/olimex-efm32g880f128-stk/Kconfig"
