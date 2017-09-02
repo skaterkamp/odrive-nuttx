@@ -1,9 +1,9 @@
-= ODrive BLDC Controller with NuttX RTOS: Debian Linux based Toolchain
+= ODrive Controller with NuttX RTOS: Debian Linux based Toolchain
 Stefan Katerkamp <stefan@katerkamp.de>
 02.09.2017
 
 These installation instructions show how to install
-NuttX RTOS on an ODrive V.3.3 brushless DC motor controller board. 
+NuttX RTOS on an ODrive V.3.3 brushless motor controller board. 
 See http://odriverobotics.com[ODriveRobotics] for details on the board.
 
 Prerequisite is a Debian Stretch (Debian 9) installation.
