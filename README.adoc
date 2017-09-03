@@ -65,7 +65,7 @@ the board is OK:
 Activate a branch for V3.3 board:
 
  cd ODriveFirmware
- git checkout sensorless-b4-v3.3
+ git checkout sensorless
 
 Now connect three wires of the STLINK USB stick to ODrive header _J2_, pins SWC, GND, SWD. 
 Connect the USB stick to your Debian system.
